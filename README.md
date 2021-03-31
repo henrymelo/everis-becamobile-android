@@ -24,8 +24,8 @@ Criar um aplicativo que realize a listagem de filmes e exibição dos detalhes:
 * Mandando bem na avaliação:
   - Realize quantos commits puder, não queremos somente a solução final; queremos saber como você chegou lá. Sua evolução vale tanto quanto o resultado final.
   - Arquitetura MVC, busque organizar o código, separando as chamadadas de API e usando extensions.
-  - O Design é livre, mas se tiver um tempinho... gostariamos que fizesse uma revisão final, usando as dicas da Apple:
-  https://developer.apple.com/design/tips/
+  - O Design é livre, mas se tiver um tempinho... gostariamos que fizesse uma revisão final, usando as dicas de Material.io pra Android:
+  https://material.io/components?platform=android
   - Sugestões de bibliotecas:
      - Carregamento de imagens 
        - https://github.com/square/picasso
