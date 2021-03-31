@@ -48,4 +48,4 @@ Criar um aplicativo que realize a listagem de filmes e exibição dos detalhes:
   - Se for usar o ssh para clone, este comando ajuda a salvar a chave de forma local: 
     - ssh-add -K ~/.ssh/id_rsa
 
-* :clap: Parabéns por ter chegado até aqui! :smile: _Um grande abraço e bem vindo ao time Mobile Android_ :iphone: :android: :punch:
+* :clap: Parabéns por ter chegado até aqui! :smile: _Um grande abraço e bem vindo ao time Mobile Android_ :iphone: :punch:
