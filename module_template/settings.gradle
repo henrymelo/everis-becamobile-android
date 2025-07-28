@@ -1,0 +1,6 @@
+
+include(":app")
+include(":core:networking")
+include(":core:ui")
+include(":feature:login")
+include(":feature:login-sample")
