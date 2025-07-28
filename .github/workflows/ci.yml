@@ -1,0 +1,65 @@
+
+name: CI-Android
+
+on:
+  pull_request:
+    branches: [ develop, release ]
+  push:
+    branches: [ develop, release ]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+
+      - name: Build
+        run: ./gradlew build
+
+      - name: Run Unit Tests
+        run: ./gradlew testDebugUnitTest
+
+      - name: Lint Check
+        run: ./gradlew lint
+
+
+      - name: Run Detekt (Kotlin Static Analysis)
+        run: ./gradlew detekt
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.organization=SEU_ORG
+            -Dsonar.projectKey=SEU_PROJECT_KEY
+
+      - name: Upload Coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Notify Teams (Success)
+        if: success() && (github.actor == 'SEU_USERNAME' || contains(github.event.pull_request.requested_reviewers.*.login, 'SEU_USERNAME'))
+        run: |
+          curl -H 'Content-Type: application/json' \          -d "{\"title\": \"CI/CD Android\", \"text\": \"✅ Pipeline concluído para $GITHUB_REF. [Ver logs](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID})\"}" \          ${{ secrets.TEAMS_WEBHOOK_URL }}
+
+      - name: Notify Teams (Failure)
+        if: failure() && (github.actor == 'SEU_USERNAME' || contains(github.event.pull_request.requested_reviewers.*.login, 'SEU_USERNAME'))
+        run: |
+          curl -H 'Content-Type: application/json' \          -d "{\"title\": \"CI/CD Android\", \"text\": \"❌ Falha no pipeline para $GITHUB_REF. [Ver logs](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID})\"}" \          ${{ secrets.TEAMS_WEBHOOK_URL }}

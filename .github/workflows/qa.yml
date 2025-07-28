@@ -1,0 +1,48 @@
+
+name: QA-Android
+
+on:
+  pull_request:
+    branches: [ release ]
+
+jobs:
+  instrumentation-tests:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+
+      - name: Start Emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 33
+          target: google_apis
+          arch: x86_64
+          profile: pixel
+
+      - name: Run Instrumented Tests
+        run: ./gradlew connectedAndroidTest
+
+      - name: Notify Teams (Success)
+        if: success() && (github.actor == 'SEU_USERNAME' || contains(github.event.pull_request.requested_reviewers.*.login, 'SEU_USERNAME'))
+        run: |
+          curl -H 'Content-Type: application/json' \          -d "{\"title\": \"CI/CD Android\", \"text\": \"✅ Pipeline concluído para $GITHUB_REF. [Ver logs](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID})\"}" \          ${{ secrets.TEAMS_WEBHOOK_URL }}
+
+      - name: Notify Teams (Failure)
+        if: failure() && (github.actor == 'SEU_USERNAME' || contains(github.event.pull_request.requested_reviewers.*.login, 'SEU_USERNAME'))
+        run: |
+          curl -H 'Content-Type: application/json' \          -d "{\"title\": \"CI/CD Android\", \"text\": \"❌ Falha no pipeline para $GITHUB_REF. [Ver logs](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID})\"}" \          ${{ secrets.TEAMS_WEBHOOK_URL }}
